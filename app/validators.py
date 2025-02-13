@@ -11,3 +11,8 @@ def strong_password(password: str) -> bool:
 def valid_username(username: str) -> bool:
     username_regex = r'^[a-zA-Z0-9_]{3,20}$'
     return re.match(username_regex, username) is not None
+
+def valid_phone(telephone: str) -> bool:
+    phone_regex = r'^\+?\d{8,13}$'
+    return re.match(phone_regex, telephone)
+    
