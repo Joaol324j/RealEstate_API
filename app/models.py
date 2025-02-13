@@ -8,3 +8,10 @@ class Furniture(Base):
     title = Column(String, nullable=False)
     quantity = Column(Integer)
     description = Column(String, nullable=False)
+
+class User(Base):
+    __tablename__ = "user"
+
+    username = Column(String, primary_key=True, nullable=False)
+    email = Column(String, nullable=False)
+    hashed_password = Column(String, nullable=False)

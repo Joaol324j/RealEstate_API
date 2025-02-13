@@ -1,0 +1,3 @@
+SECRET_KEY = "byfebyuiewfvy8fv38vfy3vhfouqfvq"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30 
