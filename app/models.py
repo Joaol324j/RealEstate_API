@@ -12,6 +12,8 @@ class Furniture(Base):
 class User(Base):
     __tablename__ = "user"
 
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     username = Column(String, primary_key=True, nullable=False)
     email = Column(String, nullable=False)
     hashed_password = Column(String, nullable=False)
+    telephone = Column(String, nullable=False)

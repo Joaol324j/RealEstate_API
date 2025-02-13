@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.schemas import UserCreate, UserOut
 from app.crud import get_user, create_user
-from app.validators import valid_email, strong_password, valid_username
+from app.validators import valid_email, strong_password, valid_username, valid_phone
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -17,6 +17,9 @@ async def register_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
     
     if not valid_username(user.username):
         raise HTTPException(status_code=400, detail="O nome de usuário deve ter entre 3 e 20 caracteres e pode conter apenas letras, números e underscores")
+    
+    if not valid_phone(user.telephone):
+        raise HTTPException(status_code=400, detail="Número de telefone inválido")
 
     existing_user = await get_user(db, user.username)
     if existing_user:
