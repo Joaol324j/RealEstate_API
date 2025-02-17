@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from app.models import UserRole
 
 class UserBase(BaseModel):
     username: str
@@ -11,6 +12,7 @@ class UserCreate(UserBase):
 
 class UserOut(UserBase):
     id: int
+    role: UserRole
 
 class UserInDB(UserBase):
     id: int

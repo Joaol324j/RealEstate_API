@@ -4,6 +4,8 @@ from app.database import get_db
 from app.schemas import UserCreate, UserOut
 from app.crud import get_user, create_user
 from app.validators import valid_email, strong_password, valid_username, valid_phone
+from app.core.auth import get_current_user
+from app.models import UserRole
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -25,3 +27,14 @@ async def register_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
     if existing_user:
         raise HTTPException(status_code=400, detail="Usuário já existe")
     return await create_user(db, user)
+
+@router.post("/register/admin", response_model=UserOut)
+async def register_admin(user: UserCreate, db: AsyncSession = Depends(get_db), current_user=Depends(get_current_user)):
+    if current_user.role != UserRole.admin:
+        raise HTTPException(status_code=403, detail="Apenas administradores podem criar outros administradores")
+
+    existing_user = await get_user(db, user.username)
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Usuário já existe")
+
+    return await create_user(db, user, role=UserRole.admin)
