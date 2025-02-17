@@ -1,5 +1,6 @@
 from app.database import Base
-from sqlalchemy import Column, Integer, String, TIMESTAMP, Boolean, text
+from sqlalchemy import Column, Integer, String, TIMESTAMP, Boolean, text, Enum
+import enum
 
 class Furniture(Base):
     __tablename__ = "furniture"
@@ -9,11 +10,16 @@ class Furniture(Base):
     quantity = Column(Integer)
     description = Column(String, nullable=False)
 
+class UserRole(str, enum.Enum):
+    user = "user"
+    admin = "admin"
+
 class User(Base):
-    __tablename__ = "user"
+    __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     username = Column(String, primary_key=True, nullable=False)
     email = Column(String, nullable=False)
     hashed_password = Column(String, nullable=False)
     telephone = Column(String, nullable=False)
+    role = Column(Enum(UserRole), default=UserRole.user, nullable=False)
