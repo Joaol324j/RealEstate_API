@@ -1,19 +1,13 @@
-from app.database import Base
-from sqlalchemy import Column, Integer, String, TIMESTAMP, Boolean, text
+import datetime as _dt
+import sqlalchemy as _sql
+import database as _database
 
-class Furniture(Base):
-    __tablename__ = "furniture"
-
-    id = Column(Integer, primary_key=True, nullable=False)
-    title = Column(String, nullable=False)
-    quantity = Column(Integer)
-    description = Column(String, nullable=False)
-
-class User(Base):
+class User(_database.Base):
     __tablename__ = "user"
 
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    username = Column(String, primary_key=True, nullable=False)
-    email = Column(String, nullable=False)
-    hashed_password = Column(String, nullable=False)
-    telephone = Column(String, nullable=False)
+    id = _sql.Column(_sql.Integer, primary_key=True, index=True)
+    nome = _sql.Column(_sql.String, index=True)
+    sobrenome = _sql.Column(_sql.String, index=True)
+    email = _sql.Column(_sql.String, index=True, unique=True)
+    numero_telefone = _sql.Column(_sql.String, index=True, unique=True)
+    criado_data = _sql.Column(_sql.DateTime, default=_dt.datetime.utcnow)

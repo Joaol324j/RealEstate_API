@@ -1,22 +1,27 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from dotenv import load_dotenv
+import sqlalchemy as _sql
+import sqlalchemy.ext.declarative as _declarative
+import sqlalchemy.orm as _orm
 import os
+from dotenv import load_dotenv
 
+# Load environment variables from .env file
 load_dotenv()
 
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
+# Directly setting the DATABASE_URL for testing purposes
+DATABASE_URL = "postgresql://myuser:password@localhost:5432/realestate_postgres"
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable is not set")
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+print(f"DATABASE_URL: {DATABASE_URL}")  # Add this line to print the DATABASE_URL
 
-Base = declarative_base()
+try:
+    engine = _sql.create_engine(DATABASE_URL)
+    print("Engine created successfully")
+except Exception as e:
+    print(f"Error creating engine: {e}")
+    raise
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+SessionLocal = _orm.sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Base = _declarative.declarative_base()
