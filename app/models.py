@@ -1,14 +1,26 @@
 from app.database import Base
-from sqlalchemy import Column, Integer, String, TIMESTAMP, Boolean, text, Enum
+from sqlalchemy import Column, Integer, Float, String, TIMESTAMP, Boolean, text, Enum
 import enum
 
-class Furniture(Base):
-    __tablename__ = "furniture"
+class PropertyType(str, enum.Enum):
+    house = "house"
+    apartment = "apartment"
 
-    id = Column(Integer, primary_key=True, nullable=False)
+class ListingType(str, enum.Enum):
+    rent = "rent"
+    sale = "sale"
+    both = "both"
+
+class Property(Base):
+    __tablename__ = "properties"
+
+    id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
     title = Column(String, nullable=False)
-    quantity = Column(Integer)
     description = Column(String, nullable=False)
+    price = Column(Float, nullable=False)
+    location = Column(String, nullable=False)
+    property_type = Column(Enum(PropertyType), nullable=False)
+    listing_type = Column(Enum(ListingType), nullable=False)
 
 class UserRole(str, enum.Enum):
     user = "user"

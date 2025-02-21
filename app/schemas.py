@@ -1,6 +1,26 @@
 from pydantic import BaseModel
 from typing import Optional
-from app.models import UserRole
+from app.models import UserRole, PropertyType, ListingType
+
+class PropertyBase(BaseModel):
+    title: str
+    description: str
+    price: float
+    location: str
+    property_type: PropertyType
+    listing_type: ListingType
+
+class PropertyCreate(PropertyBase):
+    pass
+
+class PropertyUpdate(PropertyBase):
+    pass
+
+class PropertyResponse(PropertyBase):
+    id: int
+
+    class Config:
+        from_attributes = True
 
 class UserBase(BaseModel):
     username: str
