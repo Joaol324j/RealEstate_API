@@ -1,28 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Query
 from sqlalchemy.orm import Session
-import shutil
-import os
-import uuid  
 from app.database import get_db
 from app.models import Property, PropertyImage, PropertyType, ListingType
 from app.schemas import PropertyCreate, PropertyUpdate, PropertyResponse
 from app.crud import create_property, update_property, get_property_by_id, delete_property
 from app.dependencies import verify_admin
+from app.utils.images_utils import save_image, delete_image  
 
 router = APIRouter(prefix="/properties", tags=["Properties"])
-
-UPLOAD_DIR = "uploads/"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
-
-def save_image(file: UploadFile):
-    ext = file.filename.split(".")[-1]
-    unique_name = f"{uuid.uuid4()}.{ext}"  
-    file_path = os.path.join(UPLOAD_DIR, unique_name)
-
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-
-    return file_path
 
 @router.get("/", response_model=list[PropertyResponse])
 def read_all_properties(
@@ -51,17 +36,16 @@ def read_all_properties(
 
 @router.get("/{property_id}", response_model=PropertyResponse)
 def read_property(property_id: int, db: Session = Depends(get_db)):
-
     if property_id <= 0:
         raise HTTPException(status_code=400, detail="ID do imóvel inválido.")
+    
     property_item = get_property_by_id(db, property_id)
-
     if not property_item:
         raise HTTPException(status_code=404, detail="Imóvel não encontrado.")
+    
     return property_item
 
 @router.post("/", response_model=PropertyResponse, dependencies=[Depends(verify_admin)])
-
 def create_new_property(
     title: str = Form(...),
     description: str = Form(...),
@@ -87,12 +71,11 @@ def create_new_property(
             file_path = save_image(file)
             image = PropertyImage(property_id=new_property.id, image_url=file_path)
             db.add(image)
-
+    
     db.commit()
     return new_property
 
 @router.put("/{property_id}", response_model=PropertyResponse, dependencies=[Depends(verify_admin)])
-
 def update_existing_property(
     property_id: int,
     title: str = Form(...),
@@ -104,7 +87,6 @@ def update_existing_property(
     images: list[UploadFile] = File(None),
     db: Session = Depends(get_db)
 ):
-    
     updated_property = update_property(
         db, property_id, PropertyUpdate(
             title=title,
@@ -115,46 +97,37 @@ def update_existing_property(
             listing_type=listing_type
         )
     )
-
     if not updated_property:
         raise HTTPException(status_code=404, detail="Imóvel não encontrado.")
 
     if images:
         old_images = db.query(PropertyImage).filter(PropertyImage.property_id == property_id).all()
-        
         for old_image in old_images:
-            try:
-                os.remove(old_image.image_url)  
-            except FileNotFoundError:
-                pass
-            db.delete(old_image) 
+            delete_image(old_image.image_url)
+            db.delete(old_image)
 
         for file in images:
             file_path = save_image(file)
             image = PropertyImage(property_id=property_id, image_url=file_path)
             db.add(image)
-
+        
         db.commit()
-
+    
     return updated_property
 
 @router.delete("/{property_id}", dependencies=[Depends(verify_admin)])
-
 def delete_existing_property(property_id: int, db: Session = Depends(get_db)):
     if property_id <= 0:
         raise HTTPException(status_code=400, detail="ID do imóvel inválido.")
-
+    
     images = db.query(PropertyImage).filter(PropertyImage.property_id == property_id).all()
     for image in images:
-        try:
-            os.remove(image.image_url) 
-        except FileNotFoundError:
-            pass
-        db.delete(image)  
-
+        delete_image(image.image_url)
+        db.delete(image)
+    
     deleted_property = delete_property(db, property_id)
     if not deleted_property:
         raise HTTPException(status_code=404, detail="Imóvel não encontrado.")
-
+    
     db.commit()
     return {"message": "Imóvel deletado com sucesso"}
