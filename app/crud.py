@@ -1,7 +1,8 @@
+import secrets
 from sqlalchemy.orm import Session
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models import User, UserRole, Property
+from app.models import User, UserRole, Property, PasswordResetToken
 from app.schemas import PropertyCreate, PropertyUpdate
 
 def create_property(db: Session, property_data: PropertyCreate):
@@ -53,3 +54,11 @@ async def create_user(db: AsyncSession, user_data, role: UserRole = UserRole.use
     db.add(db_user)
     db.commit()
     return db_user
+
+def create_password_reset_token(db: Session, user: User):
+    token = secrets.token_hex(32) 
+    reset_token = PasswordResetToken(user_id=user.id, token=token)
+    db.add(reset_token)
+    db.commit()
+    db.refresh(reset_token)
+    return reset_token

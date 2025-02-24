@@ -1,5 +1,6 @@
 from app.database import Base
-from sqlalchemy import Column, Integer, Float, String, TIMESTAMP, Boolean, text, Enum
+from sqlalchemy import Column, Integer, Float, String, Enum, ForeignKey, DateTime
+from datetime import datetime, timedelta
 import enum
 
 class PropertyType(str, enum.Enum):
@@ -30,8 +31,17 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    username = Column(String, primary_key=True, nullable=False)
+    username = Column(String, nullable=False)
     email = Column(String, nullable=False)
     hashed_password = Column(String, nullable=False)
     telephone = Column(String, nullable=False)
     role = Column(Enum(UserRole), default=UserRole.user, nullable=False)
+
+class PasswordResetToken(Base):
+
+    __tablename__ = "reset_tokens"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    token = Column(String, unique=True, nullable=False)
+    expires_at = Column(DateTime, nullable=False, default=lambda: datetime.utcnow() + timedelta(hours=1))
