@@ -21,7 +21,7 @@ def forgot_password(email: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Usuário não encontrado.")
 
     reset_token = create_password_reset_token(db, user)
-    reset_link = f"http://localhost:8000/auth/reset-password?token={reset_token.token}"
+    reset_link = f"http://localhost:8000/reset/reset-password?token={reset_token.token}"
 
     send_password_reset_email(user.email, reset_link)
 
