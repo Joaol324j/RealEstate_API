@@ -30,9 +30,7 @@ async def register_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
 
 @router.post("/register/admin", response_model=UserOut)
 async def register_admin(user: UserCreate, db: AsyncSession = Depends(get_db), current_user=Depends(get_current_user)):
-    if current_user.role != UserRole.admin:
-        raise HTTPException(status_code=403, detail="Apenas administradores podem criar outros administradores")
-    
+
     if not valid_email(user.email):
         raise HTTPException(status_code=400, detail="Formato de e-mail inválido")
     
