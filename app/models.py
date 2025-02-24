@@ -1,5 +1,6 @@
 from app.database import Base
 from sqlalchemy import Column, Integer, Float, String, Enum, ForeignKey, DateTime
+from sqlalchemy.orm import relationship
 from datetime import datetime, timedelta
 import enum
 
@@ -45,3 +46,12 @@ class PasswordResetToken(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     token = Column(String, unique=True, nullable=False)
     expires_at = Column(DateTime, nullable=False, default=lambda: datetime.utcnow() + timedelta(hours=1))
+
+class PropertyImage(Base):
+    __tablename__ = "property_images"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    property_id = Column(Integer, ForeignKey("properties.id"), nullable=False)
+    image_url = Column(String, nullable=False)  
+
+    property = relationship("Property", backref="images")
